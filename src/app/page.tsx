@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, Twitter, Mail, Home, Camera, List, LucideIcon } from 'lucide-react';
+import { Github, Twitter, Mail, Home, Camera, List, Music, LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { TypingAnimation } from './components/TypingAnimation';
 
@@ -13,6 +13,7 @@ const Portfolio = () => {
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'projects-detail', icon: List, label: 'Projects Detail' },
     { id: 'gallery', icon: Camera, label: 'Gallery' },
+    { id: 'music', icon: Music, label: 'Music' },
     { id: 'github', icon: Github, label: 'GitHub', external: 'https://github.com/tamo2918' },
     { id: 'twitter', icon: Twitter, label: 'Twitter', external: 'https://x.com/tamodev' },
     { id: 'mail', icon: Mail, label: 'Mail', external: 'mailto:tamodev8@gmail.com' },
@@ -76,6 +77,19 @@ const Portfolio = () => {
               className="h-full min-h-[calc(100vh-8rem)] py-8 pb-0"
             >
               <GallerySection />
+            </motion.div>
+          )}
+
+          {activeTab === 'music' && (
+            <motion.div
+              key="music"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="h-full min-h-[calc(100vh-8rem)] py-8"
+            >
+              <MusicSection />
             </motion.div>
           )}
         </AnimatePresence>
@@ -337,6 +351,150 @@ const ProjectsDetailSection = () => {
                 delay={index * 10 + project.title.length * 0.3 + project.description.length * 0.3 + 50}
                 speed={0.5}
               />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MusicSection = () => {
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+
+  const tracks = [
+    {
+      title: 'Midnight Dreams',
+      artist: 'Tatsuki Morita',
+      duration: '3:45',
+      file: '/audio/midnight-dreams.mp3'
+    },
+    {
+      title: 'Digital Sunrise',
+      artist: 'Tatsuki Morita',
+      duration: '4:12',
+      file: '/audio/digital-sunrise.mp3'
+    },
+    {
+      title: 'Neon Nights',
+      artist: 'Tatsuki Morita',
+      duration: '3:28',
+      file: '/audio/neon-nights.mp3'
+    },
+    {
+      title: 'Synth Waves',
+      artist: 'Tatsuki Morita',
+      duration: '5:01',
+      file: '/audio/synth-waves.mp3'
+    },
+    {
+      title: 'Code & Coffee',
+      artist: 'Tatsuki Morita',
+      duration: '3:15',
+      file: '/audio/code-coffee.mp3'
+    }
+  ];
+
+  const togglePlay = (index: number) => {
+    if (currentTrack === index && isPlaying) {
+      audioRef?.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef?.pause();
+      const newAudio = new Audio(tracks[index].file);
+      newAudio.play().catch((error) => {
+        console.log(`Audio file not found: ${tracks[index].file}`);
+        // Handle audio play error gracefully - could show a toast or placeholder
+      });
+      setAudioRef(newAudio);
+      setCurrentTrack(index);
+      setIsPlaying(true);
+    }
+  };
+
+  const AudioVisualizer = ({ isActive }: { isActive: boolean }) => {
+    return (
+      <div className="flex items-center space-x-1 h-8">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-1 bg-gray-400 rounded-full"
+            initial={{ height: 4 }}
+            animate={isActive ? {
+              height: [4, 16, 8, 20, 6, 14, 10, 4],
+              transition: {
+                duration: 1,
+                repeat: Infinity,
+                delay: i * 0.1
+              }
+            } : { height: 4 }}
+            style={{ minHeight: 4 }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="space-y-8 md:space-y-12">
+        {tracks.map((track, index) => (
+          <motion.div
+            key={track.title}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            className="flex items-center justify-between border-b border-gray-100 pb-6 md:pb-8 group cursor-pointer hover:bg-gray-50/50 transition-colors duration-300 rounded-lg p-4 md:p-6 -mx-4 md:-mx-6"
+          >
+            {/* Play Button */}
+            <motion.button
+              onClick={() => togglePlay(index)}
+              className="mr-4 md:mr-6 p-2 md:p-3 rounded-full bg-black text-white hover:bg-gray-800 transition-colors duration-200 flex-shrink-0"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {currentTrack === index && isPlaying ? (
+                <div className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
+                  <div className="w-1 h-3 bg-white rounded-full mr-1"></div>
+                  <div className="w-1 h-3 bg-white rounded-full"></div>
+                </div>
+              ) : (
+                <div className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
+                  <div className="w-0 h-0 border-l-[6px] border-l-white border-y-[4px] border-y-transparent ml-1"></div>
+                </div>
+              )}
+            </motion.button>
+
+            {/* Track Info */}
+            <div className="flex-1 space-y-1">
+              <h3 className="text-lg md:text-xl font-medium text-gray-900 group-hover:text-black transition-colors">
+                <TypingAnimation 
+                  text={track.title}
+                  delay={index * 10}
+                  speed={0.3}
+                />
+              </h3>
+              <p className="text-sm md:text-base text-gray-600 group-hover:text-gray-700 transition-colors">
+                <TypingAnimation 
+                  text={track.artist}
+                  delay={index * 10 + track.title.length * 0.3 + 25}
+                  speed={0.3}
+                />
+              </p>
+            </div>
+
+            {/* Audio Visualizer */}
+            <div className="flex items-center space-x-4 md:space-x-6">
+              <AudioVisualizer isActive={currentTrack === index && isPlaying} />
+              <div className="text-sm md:text-base text-gray-400 font-mono">
+                <TypingAnimation 
+                  text={track.duration}
+                  delay={index * 10 + track.title.length * 0.3 + track.artist.length * 0.3 + 50}
+                  speed={0.5}
+                />
+              </div>
             </div>
           </motion.div>
         ))}
