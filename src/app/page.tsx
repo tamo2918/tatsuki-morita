@@ -1,103 +1,392 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Github, Twitter, Mail, Instagram, Linkedin, Home, Briefcase, Camera, List, Grid } from 'lucide-react';
+import Image from 'next/image';
+import { ImagePlaceholder } from './components/ImagePlaceholder';
+import { TypingAnimation } from './components/TypingAnimation';
+import { getGalleryImages, GalleryImage } from '../lib/supabase';
+
+const Portfolio = () => {
+  const [activeTab, setActiveTab] = useState('home');
+
+  const tabs = [
+    { id: 'home', icon: Home, label: 'Home' },
+    { id: 'projects-detail', icon: List, label: 'Projects Detail' },
+    { id: 'gallery', icon: Camera, label: 'Gallery' },
+    { id: 'github', icon: Github, label: 'GitHub', external: 'https://github.com/tamo2918' },
+    { id: 'twitter', icon: Twitter, label: 'Twitter', external: 'https://x.com/tamodev' },
+    { id: 'mail', icon: Mail, label: 'Mail', external: 'mailto:tamodev8@gmail.com' },
+  ];
+
+  const handleTabClick = (tab: any) => {
+    if (tab.external) {
+      window.open(tab.external, '_blank');
+    } else {
+      setActiveTab(tab.id);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          {activeTab === 'projects-detail' && (
+            <motion.div
+              key="projects-detail"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="h-full min-h-[calc(100vh-8rem)] py-8"
+            >
+              <ProjectsDetailSection />
+            </motion.div>
+          )}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          {activeTab === 'home' && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="h-full flex items-center justify-center min-h-[calc(100vh-8rem)]"
+            >
+              <HomeSection />
+            </motion.div>
+          )}
+          
+
+          
+          {activeTab === 'gallery' && (
+            <motion.div
+              key="gallery"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="h-full min-h-[calc(100vh-8rem)] py-8 pb-0"
+            >
+              <GallerySection />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="bg-white/80 backdrop-blur-md rounded-full px-4 md:px-8 py-3 md:py-4 shadow-2xl border border-gray-200/50">
+          <div className="flex items-center space-x-2 md:space-x-6">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id && !tab.external;
+              
+              return (
+                <motion.button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab)}
+                  className={`relative p-2 md:p-3 rounded-full transition-all duration-300 ${
+                    isActive
+                      ? 'bg-black text-white shadow-lg'
+                      : 'text-gray-600 hover:text-black hover:bg-gray-100'
+                  }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Icon size={16} className="md:w-5 md:h-5" />
+                  
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-black rounded-full"
+                      style={{ zIndex: -1 }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
-}
+};
+
+const HomeSection = () => {
+  return (
+    <div className="relative overflow-hidden px-4 py-8 md:py-16">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+          {/* Left Side - Profile Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -50, scale: 0.8 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
+          >
+            <motion.div
+              className="w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 rounded-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 shadow-2xl relative overflow-hidden"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+        <Image
+                src="/images/profile/profile.jpg"
+                alt="Tatsuki Morita Profile"
+                fill
+                quality={95}
+          priority
+                sizes="(max-width: 768px) 128px, (max-width: 1024px) 192px, 256px"
+                className="object-cover"
+              />
+            </motion.div>
+          </motion.div>
+
+          {/* Right Side - Text Content */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-center md:text-left space-y-6"
+          >
+            {/* Main Greeting */}
+            <motion.h1
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <motion.span
+                className="inline-block"
+                whileHover={{ scale: 1.05, color: "#3b82f6" }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                Hi
+              </motion.span>
+              <span className="mx-3">👋</span>
+              <motion.span
+                className="inline-block"
+                whileHover={{ scale: 1.05, color: "#3b82f6" }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                I'm Tatsuki
+              </motion.span>
+            </motion.h1>
+
+            {/* About Me */}
+            <motion.h2
+              className="text-xl md:text-2xl lg:text-3xl font-medium text-gray-700"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              whileHover={{ scale: 1.02, color: "#374151" }}
+            >
+              About Me
+            </motion.h2>
+
+            {/* Description */}
+            <motion.div
+              className="space-y-3 text-sm md:text-base lg:text-lg text-gray-600 leading-relaxed max-w-md"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+            >
+              <motion.p
+                whileHover={{ scale: 1.01, color: "#4b5563" }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                I’m a high school app developer who loves AI and is eager to take on the challenge of developing LLMs.
+              </motion.p>
+            </motion.div>
+
+            {/* Location Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+              className="flex justify-center md:justify-start"
+            >
+              <motion.span
+                className="inline-flex items-center gap-2 text-sm text-gray-500 px-4 py-2 bg-gray-100 rounded-full"
+                whileHover={{ 
+                  scale: 1.05, 
+                  backgroundColor: "#f3f4f6",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <span>📍</span>
+                Last visit from Kobe, Japan
+              </motion.span>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+const GallerySection = () => {
+  const [photos, setPhotos] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        setLoading(true);
+        const images = await getGalleryImages();
+        setPhotos(images);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching gallery images:', err);
+        setError('画像の読み込みに失敗しました');
+        // フォールバック用のローカル画像データ
+        const fallbackPhotos = [
+          { id: 1, title: 'Gallery Photo 1', image_url: '/images/gallery/photo-1.jpg', alt_text: 'Gallery Photo 1', display_order: 1, description: '', created_at: '' },
+          { id: 2, title: 'Gallery Photo 2', image_url: '/images/gallery/photo-2.jpg', alt_text: 'Gallery Photo 2', display_order: 2, description: '', created_at: '' },
+          { id: 3, title: 'Gallery Photo 3', image_url: '/images/gallery/photo-3.jpg', alt_text: 'Gallery Photo 3', display_order: 3, description: '', created_at: '' },
+          { id: 4, title: 'Gallery Photo 4', image_url: '/images/gallery/photo-4.jpg', alt_text: 'Gallery Photo 4', display_order: 4, description: '', created_at: '' },
+          { id: 5, title: 'Gallery Photo 5', image_url: '/images/gallery/photo-5.jpg', alt_text: 'Gallery Photo 5', display_order: 5, description: '', created_at: '' },
+          { id: 6, title: 'Gallery Photo 6', image_url: '/images/gallery/photo-6.jpg', alt_text: 'Gallery Photo 6', display_order: 6, description: '', created_at: '' },
+          { id: 7, title: 'Gallery Photo 7', image_url: '/images/gallery/photo-7.jpg', alt_text: 'Gallery Photo 7', display_order: 7, description: '', created_at: '' },
+          { id: 8, title: 'Gallery Photo 8', image_url: '/images/gallery/photo-8.jpg', alt_text: 'Gallery Photo 8', display_order: 8, description: '', created_at: '' },
+          { id: 9, title: 'Gallery Photo 9', image_url: '/images/gallery/photo-9.jpg', alt_text: 'Gallery Photo 9', display_order: 9, description: '', created_at: '' }
+        ];
+        setPhotos(fallbackPhotos);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryImages();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-2 md:p-4 max-w-6xl mx-auto mb-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 mb-0">
+          {[...Array(9)].map((_, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              className="aspect-square rounded-none overflow-hidden shadow-sm bg-gray-200 animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-2 md:p-4 max-w-6xl mx-auto mb-0">
+      {error && (
+        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+          {error} - ローカル画像を表示しています
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 mb-0">
+        {photos.map((photo, index) => (
+          <motion.div
+            key={photo.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: index * 0.05 }}
+            className="aspect-square rounded-none overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            title={photo.title}
+          >
+            <Image
+              src={photo.image_url}
+              alt={photo.alt_text}
+              width={1200}
+              height={1200}
+              quality={95}
+              priority={index < 2}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ProjectsDetailSection = () => {
+  const projects = [
+    {
+      title: 'Kotoba+',
+      description: 'An app that lets you look up words and save them to knowledge cards.',
+      year: '2025'
+    },
+    {
+      title: 'Lala+',
+      description: 'A learning app where AI generates questions from images.',
+      year: '2025'
+    },
+    {
+      title: 'Mojisu',
+      description: 'A sleek app that counts characters.',
+      year: '2025'
+    },
+    {
+      title: 'BranchDo',
+      description: 'An app where AI breaks down tasks into smaller steps.',
+      year: '2024'
+    },
+    {
+      title: 'Osero',
+      description: 'A simple Othello game.',
+      year: '2023'
+    },
+    
+  ];
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="space-y-8 md:space-y-12">
+        {projects.map((project, index) => (
+          <motion.div
+            key={project.title}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            className="flex items-start justify-between border-b border-gray-100 pb-6 md:pb-8 group cursor-pointer hover:bg-gray-50/50 transition-colors duration-300 rounded-lg p-4 md:p-6 -mx-4 md:-mx-6"
+          >
+            <div className="flex-1 space-y-2">
+              <h3 className="text-lg md:text-xl font-medium text-gray-900 group-hover:text-black transition-colors">
+                <TypingAnimation 
+                  text={project.title}
+                  delay={index * 10}
+                  speed={0.5}
+          />
+              </h3>
+              <p className="text-sm md:text-base text-gray-600 group-hover:text-gray-700 transition-colors leading-relaxed">
+                <TypingAnimation 
+                  text={project.description}
+                  delay={index * 10 + project.title.length * 0.5 + 25}
+                  speed={0.5}
+                />
+              </p>
+            </div>
+            <div className="text-sm md:text-base text-gray-400 font-mono ml-6 md:ml-8">
+              <TypingAnimation 
+                text={project.year}
+                delay={index * 10 + project.title.length * 0.5 + project.description.length * 0.5 + 50}
+                speed={1}
+          />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Portfolio;
