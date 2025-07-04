@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, Twitter, Mail, Instagram, Linkedin, Home, Briefcase, Camera, List, Grid } from 'lucide-react';
+import { Github, Twitter, Mail, Home, Camera, List, LucideIcon } from 'lucide-react';
 import Image from 'next/image';
-import { ImagePlaceholder } from './components/ImagePlaceholder';
 import { TypingAnimation } from './components/TypingAnimation';
 
 const Portfolio = () => {
@@ -19,7 +18,14 @@ const Portfolio = () => {
     { id: 'mail', icon: Mail, label: 'Mail', external: 'mailto:tamodev8@gmail.com' },
   ];
 
-  const handleTabClick = (tab: any) => {
+  interface TabType {
+    id: string;
+    icon: LucideIcon;
+    label: string;
+    external?: string;
+  }
+
+  const handleTabClick = (tab: TabType) => {
     if (tab.external) {
       window.open(tab.external, '_blank');
     } else {
@@ -170,7 +176,7 @@ const HomeSection = () => {
                 whileHover={{ scale: 1.05, color: "#3b82f6" }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                I'm Tatsuki
+                I&apos;m Tatsuki
               </motion.span>
             </motion.h1>
 
@@ -196,7 +202,7 @@ const HomeSection = () => {
                 whileHover={{ scale: 1.01, color: "#4b5563" }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                I’m a high school app developer who loves AI and is eager to take on the challenge of developing LLMs.
+                I&apos;m a high school app developer who loves AI and is eager to take on the challenge of developing LLMs.
               </motion.p>
             </motion.div>
 
