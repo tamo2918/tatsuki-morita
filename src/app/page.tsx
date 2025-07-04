@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, Twitter, Mail, Instagram, Linkedin, Home, Briefcase, Camera, List, Grid } from 'lucide-react';
 import Image from 'next/image';
 import { ImagePlaceholder } from './components/ImagePlaceholder';
 import { TypingAnimation } from './components/TypingAnimation';
-import { getGalleryImages, GalleryImage } from '../lib/supabase';
 
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -132,13 +131,13 @@ const HomeSection = () => {
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-        <Image
+              <Image
                 src="/images/profile/profile.jpg"
                 alt="Tatsuki Morita Profile"
                 fill
-                quality={95}
-          priority
+                quality={100}
                 sizes="(max-width: 768px) 128px, (max-width: 1024px) 192px, 256px"
+                priority
                 className="object-cover"
               />
             </motion.div>
@@ -231,66 +230,20 @@ const HomeSection = () => {
 
 
 const GallerySection = () => {
-  const [photos, setPhotos] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchGalleryImages = async () => {
-      try {
-        setLoading(true);
-        const images = await getGalleryImages();
-        setPhotos(images);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching gallery images:', err);
-        setError('画像の読み込みに失敗しました');
-        // フォールバック用のローカル画像データ
-        const fallbackPhotos = [
-          { id: 1, title: 'Gallery Photo 1', image_url: '/images/gallery/photo-1.jpg', alt_text: 'Gallery Photo 1', display_order: 1, description: '', created_at: '' },
-          { id: 2, title: 'Gallery Photo 2', image_url: '/images/gallery/photo-2.jpg', alt_text: 'Gallery Photo 2', display_order: 2, description: '', created_at: '' },
-          { id: 3, title: 'Gallery Photo 3', image_url: '/images/gallery/photo-3.jpg', alt_text: 'Gallery Photo 3', display_order: 3, description: '', created_at: '' },
-          { id: 4, title: 'Gallery Photo 4', image_url: '/images/gallery/photo-4.jpg', alt_text: 'Gallery Photo 4', display_order: 4, description: '', created_at: '' },
-          { id: 5, title: 'Gallery Photo 5', image_url: '/images/gallery/photo-5.jpg', alt_text: 'Gallery Photo 5', display_order: 5, description: '', created_at: '' },
-          { id: 6, title: 'Gallery Photo 6', image_url: '/images/gallery/photo-6.jpg', alt_text: 'Gallery Photo 6', display_order: 6, description: '', created_at: '' },
-          { id: 7, title: 'Gallery Photo 7', image_url: '/images/gallery/photo-7.jpg', alt_text: 'Gallery Photo 7', display_order: 7, description: '', created_at: '' },
-          { id: 8, title: 'Gallery Photo 8', image_url: '/images/gallery/photo-8.jpg', alt_text: 'Gallery Photo 8', display_order: 8, description: '', created_at: '' },
-          { id: 9, title: 'Gallery Photo 9', image_url: '/images/gallery/photo-9.jpg', alt_text: 'Gallery Photo 9', display_order: 9, description: '', created_at: '' }
-        ];
-        setPhotos(fallbackPhotos);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGalleryImages();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="p-2 md:p-4 max-w-6xl mx-auto mb-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 mb-0">
-          {[...Array(9)].map((_, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="aspect-square rounded-none overflow-hidden shadow-sm bg-gray-200 animate-pulse"
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const photos = [
+    { id: 1, src: '/images/gallery/photo-1.jpg', alt: 'Gallery Photo 1' },
+    { id: 2, src: '/images/gallery/photo-2.jpg', alt: 'Gallery Photo 2' },
+    { id: 3, src: '/images/gallery/photo-3.jpg', alt: 'Gallery Photo 3' },
+    { id: 4, src: '/images/gallery/photo-4.jpg', alt: 'Gallery Photo 4' },
+    { id: 5, src: '/images/gallery/photo-5.jpg', alt: 'Gallery Photo 5' },
+    { id: 6, src: '/images/gallery/photo-6.jpg', alt: 'Gallery Photo 6' },
+    { id: 7, src: '/images/gallery/photo-7.jpg', alt: 'Gallery Photo 7' },
+    { id: 8, src: '/images/gallery/photo-8.jpg', alt: 'Gallery Photo 8' },
+    { id: 9, src: '/images/gallery/photo-9.jpg', alt: 'Gallery Photo 9' }
+  ];
 
   return (
     <div className="p-2 md:p-4 max-w-6xl mx-auto mb-0">
-      {error && (
-        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-          {error} - ローカル画像を表示しています
-        </div>
-      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 mb-0">
         {photos.map((photo, index) => (
           <motion.div
@@ -299,16 +252,15 @@ const GallerySection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
             className="aspect-square rounded-none overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
-            title={photo.title}
           >
             <Image
-              src={photo.image_url}
-              alt={photo.alt_text}
-              width={1200}
-              height={1200}
-              quality={95}
-              priority={index < 2}
+              src={photo.src}
+              alt={photo.alt}
+              width={800}
+              height={800}
+              quality={100}
               sizes="(max-width: 768px) 100vw, 50vw"
+              priority={index < 4}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </motion.div>
@@ -364,23 +316,23 @@ const ProjectsDetailSection = () => {
                 <TypingAnimation 
                   text={project.title}
                   delay={index * 10}
-                  speed={0.5}
-          />
+                  speed={0.3}
+                />
               </h3>
               <p className="text-sm md:text-base text-gray-600 group-hover:text-gray-700 transition-colors leading-relaxed">
                 <TypingAnimation 
                   text={project.description}
-                  delay={index * 10 + project.title.length * 0.5 + 25}
-                  speed={0.5}
+                  delay={index * 10 + project.title.length * 0.3 + 25}
+                  speed={0.3}
                 />
               </p>
             </div>
             <div className="text-sm md:text-base text-gray-400 font-mono ml-6 md:ml-8">
               <TypingAnimation 
                 text={project.year}
-                delay={index * 10 + project.title.length * 0.5 + project.description.length * 0.5 + 50}
-                speed={1}
-          />
+                delay={index * 10 + project.title.length * 0.3 + project.description.length * 0.3 + 50}
+                speed={0.5}
+              />
             </div>
           </motion.div>
         ))}

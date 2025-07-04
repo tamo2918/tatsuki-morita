@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tatsuki Morita",
-  description: "デベロッパーのポートフォリオサイト",
+  title: "RAUO - Portfolio",
+  description: "クリエイティブ・デベロッパーのポートフォリオサイト",
 };
 
 export default function RootLayout({
