@@ -404,7 +404,7 @@ const MusicSection = () => {
     } else {
       audioRef?.pause();
       const newAudio = new Audio(tracks[index].file);
-      newAudio.play().catch((error) => {
+      newAudio.play().catch(() => {
         console.log(`Audio file not found: ${tracks[index].file}`);
         // Handle audio play error gracefully - could show a toast or placeholder
       });
