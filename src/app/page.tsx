@@ -223,7 +223,7 @@ const HomeSection = () => {
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <span>📍</span>
-                Last visit from Kobe, Japan
+                from Shiga, Japan
               </motion.span>
             </motion.div>
           </motion.div>
@@ -243,9 +243,7 @@ const GallerySection = () => {
     { id: 4, src: '/images/gallery/photo-4.jpg', alt: 'Gallery Photo 4' },
     { id: 5, src: '/images/gallery/photo-5.jpg', alt: 'Gallery Photo 5' },
     { id: 6, src: '/images/gallery/photo-6.jpg', alt: 'Gallery Photo 6' },
-    { id: 7, src: '/images/gallery/photo-7.jpg', alt: 'Gallery Photo 7' },
-    { id: 8, src: '/images/gallery/photo-8.jpg', alt: 'Gallery Photo 8' },
-    { id: 9, src: '/images/gallery/photo-9.jpg', alt: 'Gallery Photo 9' }
+    { id: 7, src: '/images/gallery/photo-7.jpg', alt: 'Gallery Photo 7' }
   ];
 
   return (
